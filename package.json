@@ -1,0 +1,24 @@
+{
+  "name": "bookshelf-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start-dev": "nodemon src/server",
+    "lint": "lint src/"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.30.0",
+    "eslint-config-google": "^0.14.0",
+    "nodemon": "^2.0.20"
+  },
+  "dependencies": {
+    "@hapi/hapi": "^21.1.0",
+    "chalk": "^5.2.0",
+    "nanoid": "^4.0.0"
+  }
+}
