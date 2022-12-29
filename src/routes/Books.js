@@ -95,7 +95,7 @@ class BooksManager {
     newBook.updatedAt = updatedAt;
 
     try {
-      this.#_shelf[id] = {updatedAt, ...newBook, ...this.#_shelf[id]};
+      this.#_shelf[id] = {updatedAt, ...this.#_shelf[id], ...newBook};
       return true;
     } catch {
       return false;
@@ -125,37 +125,48 @@ class BooksManager {
 
   /**
    * will filtering every books based on given query?
-   * @param {Object} queryObj
+   * @param {Object} query
    * @return {Array<Book>}
    * TODO: improve performance
    */
-  #filterBooksBasedOnQuerys(queryObj) {
-    if (!Object.keys(queryObj).length) {
-      throw new Error('queryObj is an empty object');
+  #filterBooksBasedOnQuerys(query) {
+    if (!Object.keys(query).length) {
+      throw new Error('query is an empty object');
+    }
+    // eslint-disable-next-line no-unused-vars
+    const {reading, finished, name} = query;
+    const book = this.getBooks();
+
+    if (reading) {
+      const payload = book.filter((e) => e.reading === !!+reading)
+          .map((e) => ({
+            id: e.id,
+            name: e.name,
+            publisher: e.publisher,
+          }));
+      return payload;
     }
 
-    const bagOfBooks = [];
-    const querys = Object.entries(queryObj);
-    const isPassed = new Int8Array(querys.length);
-
-    for (const book of Object.values(this.#_shelf)) {
-      for (let i = 0; i < querys.length; i++) {
-        const [key, value] = querys[i];
-
-        if (String(book[key]).toLowerCase()
-            .includes(String(isNaN(+value) ? value : !!+value).toLowerCase())) {
-          isPassed[i] = 1;
-        }
-
-        if (isPassed.every((test) => test)) {
-          bagOfBooks.push(book);
-        }
-
-        isPassed.fill(0);
-      }
+    if (finished) {
+      const payload = book.filter((e) => e.finished === !!+finished)
+          .map((e) => ({
+            id: e.id,
+            name: e.name,
+            publisher: e.publisher,
+          }));
+      return payload;
     }
 
-    return bagOfBooks;
+    if (name) {
+      const keyword = name.toLowerCase();
+      const payload = book.filter((e) => e.name.toLowerCase().includes(keyword))
+          .map((e) => ({
+            id: e.id,
+            name: e.name,
+            publisher: e.publisher,
+          }));
+      return payload;
+    }
   }
 
   /**
@@ -282,7 +293,8 @@ class BooksManager {
         }
       } else {
         // Positive response
-        const isUpdated = this.#updateBook(data);
+        newBook.id = data.id;
+        const isUpdated = this.#updateBook(newBook);
 
         if (isUpdated) {
           return h.response({
@@ -349,7 +361,11 @@ class BooksManager {
        * @property {string} id
        * @property {string} publisher
        */
-      const books = this.getBooks();
+      const books = this.getBooks().map((e) => ({
+        id: e.id,
+        name: e.id,
+        publisher: e.publisher,
+      }));
 
       return h.response({
         status: 'success',
